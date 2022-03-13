@@ -10,10 +10,6 @@ size = (740, 416)
 def connect_tables():
     NetworkTables.initialize(server="10.29.14.2")
 
-
-def onDetect(thread, detections, frame, raw_frame):
-    print(detections)
-
 def on_target(thread, detections, frame, raw_frame):
     if len(detections) > 0 and NetworkTables.isConnected():
         x_tot = 0
@@ -41,17 +37,24 @@ def on_target(thread, detections, frame, raw_frame):
         connect_tables()
 
 def to_aiming(d):
+    print(d)
     res = [
-        ((d[2]-d[0])-(size[0]/2))/size[0],((d[3]-d[1])-(size[1]/2))/size[1], (d[2]-d[0]), (size[0]/2)
+        str(((d[2]-d[0])-(size[0]/2))/size[0]),str(((d[3]-d[1])-(size[1]/2))/size[1]), str((d[2]-d[0])), str((size[0]/2))
     ]
     return res
 
 def on_ball(thread, detections, frame, raw_frame):
+    blue = []
+    red = []
+
+    for det in detections:
+        if det[4] == "blue":
+            blue.append(",".join(to_aiming(det)))
+        else:
+            red.append(",".join(to_aiming(det)))
+
+    print(blue, red)
     if len(detections) > 0 and NetworkTables.isConnected():
-
-        blue = [",".join(to_aiming(b)) for b in detections if b["4"] == "blue"]
-        red = [",".join(to_aiming(b)) for b in detections if b["4"] == "blue"]
-
         NetworkTables.getTable("Balls").putStringArray("blue", blue)
         NetworkTables.getTable("Balls").putStringArray("red", red)
 
